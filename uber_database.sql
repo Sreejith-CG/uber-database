@@ -1,5 +1,5 @@
-CREATE DATABASE uber_database;
-USE uber_database;
+CREATE DATABASE cab;
+USE cab;
 
 -- Create Riders table
 CREATE TABLE Riders (
