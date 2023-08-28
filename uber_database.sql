@@ -85,6 +85,70 @@ CREATE TABLE Ratings (
     FOREIGN KEY (driver_id) REFERENCES Drivers(driver_id)
 );
 
+
+
+DELIMITER //
+
+CREATE PROCEDURE CalculateAverageDriverRating(IN driverId INT, OUT averageRating DECIMAL(3, 2))
+BEGIN
+    SELECT AVG(rating)
+    INTO averageRating
+    FROM Ratings
+    WHERE driver_id = driverId;
+END //
+
+DELIMITER ;
+
+
+-- Create the DL_Expiry_Log table to store the log information
+CREATE TABLE DL_Expiry_Log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    driver_id INT,
+    expiry_date DATE,
+    log_timestamp DATETIME
+);
+
+-- Create the CheckDLExpiry trigger
+DELIMITER //
+CREATE TRIGGER CheckDLExpiry
+BEFORE INSERT ON Drivers
+FOR EACH ROW
+BEGIN
+    IF NEW.dl_expiry_date <= CURDATE() THEN
+        -- Insert a record into the DL_Expiry_Log table
+        INSERT INTO DL_Expiry_Log (driver_id, expiry_date, log_timestamp)
+        VALUES (NEW.driver_id, NEW.dl_expiry_date, NOW());
+    END IF;
+END //
+DELIMITER ;
+
+
+-- Create the Insurance_Expiry_Log table to store the log information
+CREATE TABLE Insurance_Expiry_Log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    driver_id INT,
+    expiry_date DATE,
+    log_timestamp DATETIME
+);
+
+-- Create the CheckInsuranceExpiry trigger
+DELIMITER //
+CREATE TRIGGER CheckInsuranceExpiry
+BEFORE INSERT ON Drivers
+FOR EACH ROW
+BEGIN
+    IF NEW.insurance_expiry_date <= CURDATE() THEN
+        -- Insert a record into the Insurance_Expiry_Log table
+        INSERT INTO Insurance_Expiry_Log (driver_id, expiry_date, log_timestamp)
+        VALUES (NEW.driver_id, NEW.insurance_expiry_date, NOW());
+    END IF;
+END //
+DELIMITER ;
+
+
+
+
+
 -- Create a new table by joining all relevant information
 CREATE TABLE AllData AS
 SELECT
@@ -131,71 +195,4 @@ JOIN Vehicles AS V ON T.vehicle_id = V.vehicle_id
 JOIN Locations AS SL ON T.start_location_id = SL.location_id
 JOIN Locations AS EL ON T.end_location_id = EL.location_id;
 
-
-
-DELIMITER //
-
-CREATE PROCEDURE CalculateAverageDriverRating(IN driverId INT, OUT averageRating DECIMAL(3, 2))
-BEGIN
-    SELECT AVG(rating)
-    INTO averageRating
-    FROM Ratings
-    WHERE driver_id = driverId;
-END //
-
-DELIMITER ;
-
-
-
-
-
--- Create the DL_Expiry_Log table to store the log information
-CREATE TABLE DL_Expiry_Log (
-    log_id INT AUTO_INCREMENT PRIMARY KEY,
-    driver_id INT,
-    expiry_date DATE,
-    log_timestamp DATETIME
-);
-
--- Create the CheckDLExpiry trigger
-DELIMITER //
-CREATE TRIGGER CheckDLExpiry
-BEFORE INSERT ON Drivers
-FOR EACH ROW
-BEGIN
-    IF NEW.dl_expiry_date <= CURDATE() THEN
-        -- Insert a record into the DL_Expiry_Log table
-        INSERT INTO DL_Expiry_Log (driver_id, expiry_date, log_timestamp)
-        VALUES (NEW.driver_id, NEW.dl_expiry_date, NOW());
-    END IF;
-END //
-DELIMITER ;
-
-
-
-
-
-
-
--- Create the Insurance_Expiry_Log table to store the log information
-CREATE TABLE Insurance_Expiry_Log (
-    log_id INT AUTO_INCREMENT PRIMARY KEY,
-    driver_id INT,
-    expiry_date DATE,
-    log_timestamp DATETIME
-);
-
--- Create the CheckInsuranceExpiry trigger
-DELIMITER //
-CREATE TRIGGER CheckInsuranceExpiry
-BEFORE INSERT ON Drivers
-FOR EACH ROW
-BEGIN
-    IF NEW.insurance_expiry_date <= CURDATE() THEN
-        -- Insert a record into the Insurance_Expiry_Log table
-        INSERT INTO Insurance_Expiry_Log (driver_id, expiry_date, log_timestamp)
-        VALUES (NEW.driver_id, NEW.insurance_expiry_date, NOW());
-    END IF;
-END //
-DELIMITER ;
 
