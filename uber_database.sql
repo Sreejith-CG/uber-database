@@ -36,6 +36,14 @@ CREATE TABLE Vehicles (
     FOREIGN KEY (driver_id) REFERENCES Drivers(driver_id)
 );
 
+-- Create Locations table
+CREATE TABLE Locations (
+    location_id INT PRIMARY KEY,
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    address VARCHAR(255)
+);
+
 -- Create Trips table
 CREATE TABLE Trips (
     trip_id INT PRIMARY KEY,
@@ -62,14 +70,6 @@ CREATE TABLE PaymentInformation (
     expiration_date VARCHAR(7),
     cvv VARCHAR(4),
     FOREIGN KEY (user_id) REFERENCES Riders(rider_id)
-);
-
--- Create Locations table
-CREATE TABLE Locations (
-    location_id INT PRIMARY KEY,
-    latitude DECIMAL(10, 8),
-    longitude DECIMAL(11, 8),
-    address VARCHAR(255)
 );
 
 -- Create Ratings table
